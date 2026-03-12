@@ -1,5 +1,4 @@
 const axios = require('axios')
-const fs = require('fs')
 const stream = require('stream')
 const { google } = require('googleapis')
 const { MongoClient } = require('mongodb')
@@ -7,16 +6,11 @@ const { MongoClient } = require('mongodb')
 const API_KEY = process.env.API_KEY
 const RESOURCE_ID = process.env.RESOURCE_ID
 const FOLDER_ID = process.env.FOLDER_ID
+const MONGO_URI = process.env.MONGO_URI
 
 const LIMIT = 1000
 const CHUNK_SIZE = 500000
-
-
 const TOTAL_ROWS = 1000000
-
-// MongoDB
-const MONGO_URI =
-  'mongodb+srv://khushchouhan9680_db_user:9680796461@cluster0.2xwtrmi.mongodb.net/?appName=Cluster0'
 
 const client = new MongoClient(MONGO_URI)
 
@@ -31,27 +25,24 @@ async function getOffset(db) {
 }
 
 async function saveOffset(db, offset) {
-  await db
-    .collection('offset')
-    .updateOne(
-      { name: 'mandi' },
-      { $set: { offset: offset } },
-      { upsert: true },
-    )
+  await db.collection('offset').updateOne(
+    { name: 'mandi' },
+    { $set: { offset } },
+    { upsert: true }
+  )
 }
 
-// ⭐ frontend dashboard ke liye progress save
 async function saveProgress(db, rows) {
   await db.collection('progress').updateOne(
     { name: 'scraper' },
     {
       $set: {
-        rows: rows,
+        rows,
         total: TOTAL_ROWS,
         updatedAt: Date.now(),
       },
     },
-    { upsert: true },
+    { upsert: true }
   )
 }
 
@@ -84,19 +75,19 @@ async function start() {
 
   let offset = await getOffset(db)
 
-  // OAuth
-const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS)
+  // ⭐ OAuth setup (Railway compatible)
+  const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS)
 
-const { client_secret, client_id, redirect_uris } =
-  credentials.installed || credentials.web
+  const { client_secret, client_id, redirect_uris } =
+    credentials.installed || credentials.web
 
-const oAuth2Client = new google.auth.OAuth2(
-  client_id,
-  client_secret,
-  redirect_uris[0]
-)
+  const oAuth2Client = new google.auth.OAuth2(
+    client_id,
+    client_secret,
+    redirect_uris[0]
+  )
 
-oAuth2Client.setCredentials(JSON.parse(process.env.GOOGLE_TOKEN))
+  const token = JSON.parse(process.env.GOOGLE_TOKEN)
 
   oAuth2Client.setCredentials(token)
 
@@ -137,8 +128,6 @@ oAuth2Client.setCredentials(JSON.parse(process.env.GOOGLE_TOKEN))
       rowCount += records.length
 
       await saveOffset(db, offset)
-
-      // ⭐ dashboard update
       await saveProgress(db, offset)
 
       console.log('Uploaded rows:', offset)
@@ -157,6 +146,7 @@ oAuth2Client.setCredentials(JSON.parse(process.env.GOOGLE_TOKEN))
       }
 
       await sleep(800)
+
     } catch (err) {
       if (err.response && err.response.status === 429) {
         console.log('Rate limit wait')
