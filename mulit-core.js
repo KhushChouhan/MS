@@ -4,12 +4,13 @@ const stream = require('stream')
 const { google } = require('googleapis')
 const { MongoClient } = require('mongodb')
 
-const API_KEY = '579b464db66ec23bdd000001e8d75b7cb11147365a5647630c56832b'
-const RESOURCE_ID = '35985678-0d79-46b4-9ed6-6f13308a1d24'
+const API_KEY = process.env.API_KEY
+const RESOURCE_ID = process.env.RESOURCE_ID
+const FOLDER_ID = process.env.FOLDER_ID
 
 const LIMIT = 1000
 const CHUNK_SIZE = 500000
-const FOLDER_ID = '1TNYEd-5CCzypE-mYfSsBH7yzr9iH7_Z2'
+
 
 const TOTAL_ROWS = 1000000
 
