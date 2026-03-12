@@ -76,17 +76,17 @@ async function start() {
   let offset = await getOffset(db);
 
   // ⭐ Google Drive Service Account Auth
-  const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+ const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS)
 
-  const auth = new google.auth.GoogleAuth({
-    credentials: credentials,
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
+const auth = new google.auth.GoogleAuth({
+  credentials: credentials,
+  scopes: ['https://www.googleapis.com/auth/drive']
+})
 
-  const drive = google.drive({
-    version: "v3",
-    auth: auth,
-  });
+const drive = google.drive({
+  version: 'v3',
+  auth: auth
+})
 
   let part = 1;
   let rowCount = 0;
