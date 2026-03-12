@@ -1,0 +1,16 @@
+# Sensitive files
+credentials.json
+service-account.json
+token.json
+
+# Environment files
+.env
+.env.local
+
+# Node modules
+node_modules/
+npm-debug.log
+
+# OS files
+.DS_Store
+Thumbs.db
