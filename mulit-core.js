@@ -85,17 +85,18 @@ async function start() {
   let offset = await getOffset(db)
 
   // OAuth
-  const credentials = JSON.parse(fs.readFileSync('credentials.json'))
-  const token = JSON.parse(fs.readFileSync('token.json'))
+const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS)
 
-  const { client_secret, client_id, redirect_uris } =
-    credentials.installed || credentials.web
+const { client_secret, client_id, redirect_uris } =
+  credentials.installed || credentials.web
 
-  const oAuth2Client = new google.auth.OAuth2(
-    client_id,
-    client_secret,
-    redirect_uris[0],
-  )
+const oAuth2Client = new google.auth.OAuth2(
+  client_id,
+  client_secret,
+  redirect_uris[0]
+)
+
+oAuth2Client.setCredentials(JSON.parse(process.env.GOOGLE_TOKEN))
 
   oAuth2Client.setCredentials(token)
 
